@@ -25,6 +25,6 @@ func main() {
 		fmt.Printf("%s and %s is not same", password, password2)
 		return
 	}
-	fmt.Printf("%s and %s is ", password, password2)
+	fmt.Printf("%s and %s is same", password, password2)
 
 }
