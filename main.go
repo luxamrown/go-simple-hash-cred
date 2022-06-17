@@ -4,10 +4,12 @@ import (
 	"fmt"
 
 	"mohamadelabror.com/gohashcred/repository"
+	"mohamadelabror.com/gohashcred/repository/infra"
 )
 
 func main() {
-	passRepo := repository.NewPassword()
+	pasInfra := infra.NewInfra()
+	passRepo := repository.NewPassword(pasInfra.Connect())
 
 	password := "@Bulungan2018"
 	password2 := "123"
@@ -25,6 +27,6 @@ func main() {
 		fmt.Printf("%s and %s is not same", password, password2)
 		return
 	}
-	fmt.Printf("%s and %s is ", password, password2)
+	fmt.Printf("%s and %s is same", password, password2)
 
 }

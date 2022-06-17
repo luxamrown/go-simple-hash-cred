@@ -1,6 +1,7 @@
 package repository
 
 import (
+	"github.com/jmoiron/sqlx"
 	"golang.org/x/crypto/bcrypt"
 )
 
@@ -10,7 +11,7 @@ type PasswordRepo interface {
 }
 
 type passwordRepo struct {
-	pass string
+	passDb *sqlx.DB
 }
 
 func (p *passwordRepo) SavePassword(password string) error {
@@ -18,15 +19,29 @@ func (p *passwordRepo) SavePassword(password string) error {
 	if err != nil {
 		return err
 	}
-	p.pass = string(bytes)
+	_, err = p.passDb.Exec("INSERT INTO password_clone(password) VALUES($1)", string(bytes))
+	if err != nil {
+		panic(err)
+	}
 	return nil
 }
 
 func (p *passwordRepo) CheckPassword(password string) bool {
-	err := bcrypt.CompareHashAndPassword([]byte(p.pass), []byte(password))
+	var pass string
+	err := p.passDb.Get(&pass, "SELECT * FROM password_clone")
+	if err != nil {
+		panic(err)
+	}
+	_, err = p.passDb.Exec("DELETE FROM password_clone WHERE password = $1", pass)
+	if err != nil {
+		panic(err)
+	}
+	err = bcrypt.CompareHashAndPassword([]byte(pass), []byte(password))
 	return err == nil
 }
 
-func NewPassword() PasswordRepo {
-	return &passwordRepo{}
+func NewPassword(db *sqlx.DB) PasswordRepo {
+	return &passwordRepo{
+		passDb: db,
+	}
 }
