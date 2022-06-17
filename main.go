@@ -3,30 +3,28 @@ package main
 import (
 	"fmt"
 
-	"golang.org/x/crypto/bcrypt"
+	"mohamadelabror.com/gohashcred/repository"
 )
 
-func HashPassword(password string) (string, error) {
-	bytes, err := bcrypt.GenerateFromPassword([]byte(password), 14)
-	if err != nil {
-		return "", err
-	}
-	return string(bytes), nil
-}
-
-func CheckPasswordHash(password, hash string) bool {
-	err := bcrypt.CompareHashAndPassword([]byte(hash), []byte(password))
-	return err == nil
-}
-
 func main() {
-	password := "secret"
-	password2 := "secret"
-	hash, _ := HashPassword(password)
+	passRepo := repository.NewPassword()
 
-	fmt.Println("Password: ", password)
-	fmt.Println("Hash: ", hash)
+	password := "@Bulungan2018"
+	password2 := "123"
+	err := passRepo.SavePassword(password)
+	if err != nil {
+		panic(err)
+	}
+	fmt.Printf("Password %s saved \n", password)
 
-	match := CheckPasswordHash(password2, hash)
-	fmt.Println("Match: ", match)
+	fmt.Printf("Comparing with %s \n", password2)
+
+	isMatch := passRepo.CheckPassword(password2)
+
+	if isMatch == false {
+		fmt.Printf("%s and %s is not same", password, password2)
+		return
+	}
+	fmt.Printf("%s and %s is ", password, password2)
+
 }
